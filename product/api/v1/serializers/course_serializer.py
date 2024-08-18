@@ -30,7 +30,7 @@ class CreateLessonSerializer(serializers.ModelSerializer):
         fields = (
             'title',
             'link',
-            'course'
+
         )
 
 
@@ -122,3 +122,9 @@ class CreateCourseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Course
+        fields = (
+            'author',
+            'title',
+            'start_date',
+            'price',
+        )

@@ -33,6 +33,23 @@ class LessonViewSet(viewsets.ModelViewSet):
         course = get_object_or_404(Course, id=self.kwargs.get('course_id'))
         return course.lessons.all()
 
+    def create(self, request, *args, **kwargs):
+        """Метод создания урока"""
+
+        course = get_object_or_404(Course, id=self.kwargs.get('course_id'))
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+
+        headers = self.get_success_headers(serializer.data)
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED,
+            headers=headers
+        )
+
 
 class GroupViewSet(viewsets.ModelViewSet):
     """Группы."""
@@ -64,17 +81,29 @@ class CourseViewSet(viewsets.ModelViewSet):
             return CourseSerializer
         return CreateCourseSerializer
 
-    @action(
-        methods=['post'],
-        detail=True,
-        permission_classes=(permissions.IsAuthenticated,)
-    )
-    def pay(self, request, pk):
-        """Покупка доступа к курсу (подписка на курс)."""
+    # @action(
+    #     methods=['post'],
+    #     detail=True,
+    #     permission_classes=(permissions.IsAuthenticated,)
+    # )
+    # def pay(self, request, pk):
+    #     """Покупка доступа к курсу (подписка на курс)."""
+    #
+    #     # TODO
+    #
+    #     return Response(
+    #         data=data,
+    #         status=status.HTTP_201_CREATED
+    #     )
 
-        # TODO
-
+    def create(self, request, *args, **kwargs):
+        """Метод создания курса"""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
         return Response(
-            data=data,
-            status=status.HTTP_201_CREATED
+            serializer.data,
+            status=status.HTTP_201_CREATED,
+            headers=headers
         )
