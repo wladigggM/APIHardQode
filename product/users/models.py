@@ -1,5 +1,9 @@
+from datetime import datetime
+
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+
+from courses.models import Course
 
 
 class CustomUser(AbstractUser):
@@ -62,8 +66,21 @@ class Balance(models.Model):
 
 class Subscription(models.Model):
     """Модель подписки пользователя на курс."""
+    user = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='subscriptions',
+        null=True,
+    )
 
-    # TODO
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        related_name='subscriptions',
+        null=True,
+    )
+    start_date = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
 
     class Meta:
         verbose_name = 'Подписка'

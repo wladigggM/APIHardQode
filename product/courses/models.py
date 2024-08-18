@@ -1,7 +1,5 @@
 from django.db import models
 
-from users.models import CustomUser
-
 
 class Course(models.Model):
     """Модель продукта - курса."""
@@ -23,6 +21,9 @@ class Course(models.Model):
         verbose_name='Стоймость',
         null=True,
         blank=True
+    )
+    is_available = models.BooleanField(
+        default=True
     )
 
     # TODO
@@ -49,7 +50,7 @@ class Lesson(models.Model):
     )
     course = models.ForeignKey(
         Course,
-        related_name='Lessons',
+        related_name='lessons',
         on_delete=models.CASCADE
     )
 
@@ -72,28 +73,4 @@ class Group(models.Model):
     class Meta:
         verbose_name = 'Группа'
         verbose_name_plural = 'Группы'
-        ordering = ('-id',)
-
-
-class UserProductAccess(models.Model):
-    """Модель доступа пользователя к продукту"""
-
-    user = models.ForeignKey(
-        CustomUser,
-        on_delete=models.CASCADE,
-        verbose_name='Пользователь'
-    )
-    product = models.ForeignKey(
-        Course,
-        on_delete=models.CASCADE,
-        verbose_name='Продукт'
-    )
-    is_access = models.BooleanField(
-        default=False,
-        verbose_name='Доступ'
-    )
-
-    class Meta:
-        verbose_name = 'Доступ к продукту'
-        verbose_name_plural = 'Доступы к продуктам'
         ordering = ('-id',)

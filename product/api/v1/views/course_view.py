@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets, permissions
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from api.v1.permissions import IsStudentOrIsAdmin, ReadOnlyOrIsAdmin
@@ -107,3 +108,16 @@ class CourseViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED,
             headers=headers
         )
+
+
+class AvailableCoursesListView(viewsets.ReadOnlyModelViewSet):
+    """Список доступных к покупке курсов"""
+
+    serializer_class = CourseSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+
+        subscriptions = Subscription.objects.filter(user=user)
+        return Course.objects.filter(is_available=True).exclude(id__in=subscriptions)
