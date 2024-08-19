@@ -13,7 +13,7 @@ from api.v1.serializers.course_serializer import (CourseSerializer,
                                                   LessonSerializer)
 from api.v1.serializers.user_serializer import SubscriptionSerializer
 from courses.models import Course
-from users.models import Subscription
+from users.models import Subscription, Balance
 
 
 class LessonViewSet(viewsets.ModelViewSet):
@@ -82,20 +82,62 @@ class CourseViewSet(viewsets.ModelViewSet):
             return CourseSerializer
         return CreateCourseSerializer
 
-    # @action(
-    #     methods=['post'],
-    #     detail=True,
-    #     permission_classes=(permissions.IsAuthenticated,)
-    # )
-    # def pay(self, request, pk):
-    #     """Покупка доступа к курсу (подписка на курс)."""
-    #
-    #     # TODO
-    #
-    #     return Response(
-    #         data=data,
-    #         status=status.HTTP_201_CREATED
-    #     )
+    @action(
+        methods=['post'],
+        detail=True,
+        permission_classes=(permissions.IsAuthenticated,)
+    )
+    def pay(self, request, pk=None):
+        """Покупка доступа к курсу (подписка на курс)."""
+
+        # TODO
+        course = self.get_object()
+        user = request.user
+
+        try:
+            balance = Balance.objects.get(user=user)
+        except Balance.DoesNotExist:
+            return Response({'details': "Balance not found"}, status=status.HTTP_404_NOT_FOUND)
+        if Subscription.objects.filter(user=user, course=course, is_active=True).exists():
+            return Response({"detail": "You already have an active subscription to this course."},
+                            status=status.HTTP_400_BAD_REQUEST)
+        price = course.price
+
+        if balance.balance < price:
+            return Response({"detail": "Insufficient balance"}, status=status.HTTP_400_BAD_REQUEST)
+
+        balance.write_off(price)
+
+        subscription = Subscription.objects.create(user=user, course=course, is_active=True)
+
+        serializer = SubscriptionSerializer(subscription)
+        data = serializer.data
+
+        return Response(
+            data=data,
+            status=status.HTTP_201_CREATED
+        )
+
+    @action(
+        methods=['get'],
+        detail=False,
+        permission_classes=(permissions.IsAuthenticated,)
+    )
+    def available(self, request):
+        """Список доступных курсов"""
+
+        # TODO
+        user = request.user
+        user_subs_ids = Subscription.objects.filter(user=user, is_active=True).values_list('course_id', flat=True)
+        available_courses = Course.objects.exclude(id__in=user_subs_ids)
+
+        serializer = CourseSerializer(available_courses, many=True)
+        data = serializer.data
+
+        return Response(
+            data=data,
+            status=status.HTTP_201_CREATED
+        )
 
     def create(self, request, *args, **kwargs):
         """Метод создания курса"""
@@ -108,16 +150,3 @@ class CourseViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED,
             headers=headers
         )
-
-
-class AvailableCoursesListView(viewsets.ReadOnlyModelViewSet):
-    """Список доступных к покупке курсов"""
-
-    serializer_class = CourseSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        user = self.request.user
-
-        subscriptions = Subscription.objects.filter(user=user)
-        return Course.objects.filter(is_available=True).exclude(id__in=subscriptions)

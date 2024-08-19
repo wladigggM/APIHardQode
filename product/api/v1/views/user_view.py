@@ -1,10 +1,11 @@
 from django.contrib.auth import get_user_model
 from rest_framework import permissions, viewsets, status
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from api.v1.serializers.user_serializer import CustomUserSerializer, BalanceSerializer
-from users.models import Balance
+from users.models import Balance, Subscription
 
 User = get_user_model()
 
@@ -17,10 +18,9 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class UserBalanceViewSet(viewsets.ModelViewSet):
-
     queryset = Balance.objects.all()
     serializer_class = BalanceSerializer
-    permission_classes = [permissions.IsAdminUser,]
+    permission_classes = [permissions.IsAdminUser, ]
 
     @action(detail=True, methods=['post'])
     def deposit(self, request, pk=None):

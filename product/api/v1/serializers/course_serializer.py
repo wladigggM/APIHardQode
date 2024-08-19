@@ -3,7 +3,7 @@ from django.db.models import Avg, Count
 from rest_framework import serializers
 
 from courses.models import Course, Group, Lesson
-from users.models import Subscription
+from users.models import Subscription, Balance
 
 User = get_user_model()
 

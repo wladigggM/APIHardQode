@@ -22,9 +22,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Subscription
-        fields = (
-            # TODO
-        )
+        fields = "__all__"
 
 
 class BalanceSerializer(serializers.ModelSerializer):
