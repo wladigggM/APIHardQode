@@ -3,7 +3,7 @@ from datetime import datetime
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-from courses.models import Course
+from courses.models import Course, Group
 
 
 class CustomUser(AbstractUser):
@@ -14,6 +14,8 @@ class CustomUser(AbstractUser):
         max_length=250,
         unique=True
     )
+    is_student = models.BooleanField(default=False)
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = (
         'username',
@@ -33,6 +35,7 @@ class CustomUser(AbstractUser):
 
 class Balance(models.Model):
     """Модель баланса пользователя."""
+    DoesNotExist = None
     user = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
@@ -81,6 +84,7 @@ class Subscription(models.Model):
     )
     start_date = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
+    group = models.ForeignKey(Group, null=True, on_delete=models.SET_NULL)
 
     class Meta:
         verbose_name = 'Подписка'

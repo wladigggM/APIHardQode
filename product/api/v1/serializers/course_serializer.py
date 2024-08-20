@@ -127,6 +127,5 @@ class CreateCourseSerializer(serializers.ModelSerializer):
         fields = (
             'author',
             'title',
-            'start_date',
             'price',
         )
