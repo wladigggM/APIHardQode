@@ -12,7 +12,7 @@ class CustomUserSerializer(UserSerializer):
 
     class Meta:
         model = User
-        fields = ('__all__')
+        fields = '__all__'
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):
@@ -22,9 +22,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Subscription
-        fields = (
-            # TODO
-        )
+        fields = "__all__"
 
 
 class BalanceSerializer(serializers.ModelSerializer):
